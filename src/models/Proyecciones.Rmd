@@ -1,0 +1,890 @@
+---
+title: "Proyección"
+output: word_document
+date: "2024-06-20"
+---
+
+#Carga de paquetes
+
+Se cargan los paquetes que se utilizarán en el análisis exploratorio y proyección de los datos.
+
+```{r,message=FALSE,warning=FALSE}
+require(dplyr)
+require(ggplot2)
+require(kableExtra)
+require(fpp2)
+require(tibble)
+```
+
+#Carga de la base de datos
+
+```{r}
+db <- read.csv("C:/Users/DMV-SVC/OneDrive - Sociedad Hipotecaria Federal SNC/Maestría/Cuatrimestre 3/Proyecto final/Base de vivienda (completa).csv")
+```
+
+# Análisis exploratorio
+
+## Determinación de las alcadias a estudiar
+
+Como primer paso es necesario definir las alcaldias que se considerarán en el análisis
+
+```{r, echo=FALSE }
+kable(table(db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE,db$anio))
+```
+
+Consideraremos únicamente a las alcaldías con más de 1,000 observaciones por año. Por lo tanto las alcaldías a considerar son: 
+
+* 2 -	Azcapotzalco
+* 3 -	Coyoacán
+* 5 -	Gustavo A. Madero
+* 6 -	Iztacalco
+* 7 -	Iztapalapa
+* 10 -	Álvaro Obregón
+* 12 -	Tlalpan
+* 14 -	Benito Juárez
+* 15 -	Cuauhtémoc
+* 16 -	Miguel Hidalgo
+* 17 -	Venustiano Carranza
+
+Eliminamos de la base toda la información sobre las demás alcaldías. Dejandonos un total de 161,718 registros
+
+```{r }
+db <- db[db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE %in% c(2,3,5,6,7,10,12,14,15,16,17),]
+```
+
+## Detección de outliers
+
+A continuación, revisaremos los outliers de los precios por alcaldía.
+
+```{r, echo=FALSE}
+#### Incluimos una variable de precios en mdp
+db$VALOR_COMPARATIVO_INMUEBLE_mdp <- db$VALOR_COMPARATIVO_INMUEBLE/1000000
+db$anio <- as.factor(db$anio)
+```
+
+```{r, echo=FALSE}
+#Azcapotzalco
+ggplot(db[db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==2,], aes(x=anio, y=VALOR_COMPARATIVO_INMUEBLE_mdp)) + 
+  geom_boxplot() +
+  ggtitle("Azcapotzalco") +
+  xlab("Año") + 
+  ylab("Precio (mdp)") +
+  theme_test()
+#Coyoacán
+ggplot(db[db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==3,], aes(x=anio, y=VALOR_COMPARATIVO_INMUEBLE_mdp)) + 
+  geom_boxplot() +
+  ggtitle("Coyoacán") +
+  xlab("Año") + 
+  ylab("Precio (mdp)") +
+  theme_test()
+#Gustavo A. Madero
+ggplot(db[db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==5,], aes(x=anio, y=VALOR_COMPARATIVO_INMUEBLE_mdp)) + 
+  geom_boxplot() +
+  ggtitle("Gustavo A. Madero") +
+  xlab("Año") + 
+  ylab("Precio (mdp)") +
+  theme_test()
+#Iztacalco
+ggplot(db[db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==6,], aes(x=anio, y=VALOR_COMPARATIVO_INMUEBLE_mdp)) + 
+  geom_boxplot() +
+  ggtitle("Iztacalco") +
+  xlab("Año") + 
+  ylab("Precio (mdp)") +
+  theme_test()
+#Iztapalapa
+ggplot(db[db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==7,], aes(x=anio, y=VALOR_COMPARATIVO_INMUEBLE_mdp)) + 
+  geom_boxplot() +
+  ggtitle("Iztapalapa") +
+  xlab("Año") + 
+  ylab("Precio (mdp)") +
+  theme_test()
+#Álvaro Obregón
+ggplot(db[db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==10,], aes(x=anio, y=VALOR_COMPARATIVO_INMUEBLE_mdp)) + 
+  geom_boxplot() +
+  ggtitle("Álvaro Obregón") +
+  xlab("Año") + 
+  ylab("Precio (mdp)") +
+  theme_test()
+#Tlalpan
+ggplot(db[db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==12,], aes(x=anio, y=VALOR_COMPARATIVO_INMUEBLE_mdp)) + 
+  geom_boxplot() +
+  ggtitle("Tlalpan") +
+  xlab("Año") + 
+  ylab("Precio (mdp)") +
+  theme_test()
+#Benito Juárez
+ggplot(db[db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==14,], aes(x=anio, y=VALOR_COMPARATIVO_INMUEBLE_mdp)) + 
+  geom_boxplot() +
+  ggtitle("Benito Juárez") +
+  xlab("Año") + 
+  ylab("Precio (mdp)") +
+  theme_test()
+#Cuauhtémoc
+ggplot(db[db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==15,], aes(x=anio, y=VALOR_COMPARATIVO_INMUEBLE_mdp)) + 
+  geom_boxplot() +
+  ggtitle("Cuauhtémoc") +
+  xlab("Año") + 
+  ylab("Precio (mdp)") +
+  theme_test()
+#Miguel Hidalgo
+ggplot(db[db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==16,], aes(x=anio, y=VALOR_COMPARATIVO_INMUEBLE_mdp)) + 
+  geom_boxplot() +
+  ggtitle("Miguel Hidalgo") +
+  xlab("Año") + 
+  ylab("Precio (mdp)") +
+  theme_test()
+#Venustiano Carranza
+ggplot(db[db$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==17,], aes(x=anio, y=VALOR_COMPARATIVO_INMUEBLE_mdp)) + 
+  geom_boxplot() +
+  ggtitle("Venustiano Carranza") +
+  xlab("Año") + 
+  ylab("Precio (mdp)") +
+  theme_test()
+```
+
+Como podemos observar, existe una cantidad considerable de outliers en cada alcaldía y para todos los años, por ende eliminaremos aquellas observaciones consideradas atípicas. Para ello emplearemos el método de percentiles, donde eliminaremos de cada año y para cada alcaldía las observaciones por abajo del percentil 2.5 y por arriba del precentil 97.5.
+
+Primero calculamos los porecentiles para cada año y alcaldía
+
+```{r, message=FALSE}
+#Detección de outliers
+outliers <- as.data.frame(group_by(db,anio,CLAVE_MUNICIPIO_UBICACION_INMUEBLE) %>%
+                            summarise(Q2.5=quantile(VALOR_COMPARATIVO_INMUEBLE,0.025),
+                                      Q97.5=quantile(VALOR_COMPARATIVO_INMUEBLE,0.975)))
+#Unimos la base de outliers con la base grande
+db <- merge(db,outliers,by=intersect(names(db),names(outliers)))
+#Creamos una variable para identificar los outliers
+db$out <- 0
+db$out[db$VALOR_COMPARATIVO_INMUEBLE<db$Q2.5 | db$VALOR_COMPARATIVO_INMUEBLE>db$Q97.5] <- 1
+```
+
+Con el proceso anterior, eliminaremos un total de 8,137 registros distribuidos de la siguiente manera:
+
+```{r, echo=FALSE}
+eliminados <- db[db$out==1,]
+kable(table(eliminados$CLAVE_MUNICIPIO_UBICACION_INMUEBLE,eliminados$anio))
+db <- db[db$out==0,]
+```
+
+# Modelado de datos
+
+## Objetivo
+
+Se desea obtener un modelops predictivo del precio de las viviendas, para así determinar las alcaldias con el mayor incremento en el precio de sus bienes inmuebles residenciales.
+
+## Técnicas utilizadas
+
+* Método de regresión
+* Método de holt winters
+
+No obstante, previo al uso de estas técnicas para determinar el mejor modelo, se calculó el promedio de los precios por alcaldía para cada mes y año. Para evitar sesgo por valores atípicos, se calculó un promedio ponderado por clase de vivienda de la siguiente manera:
+
+$$Precio_{m,i}=\frac{\sum_{j=1}^{7}PP_{m,i,j} * n_{m,i,j}}{N_{m,i}}$$
+
+donde:
+
+
+$Precio_{m,i} =$ Precio promedio de la alcaldía m, en el periodo i.
+
+$PP_{m,i,j} =$ Precio promedio en la alcaldía m, en el periodo i para la clase j $j=1,2,...,7$.
+
+$n_{m,i,j} =$ Número de observaciones en la alcaldía m, en el periodo i para la clase j.
+
+$N_{m,i} =$ Número de observaciones en la alcaldía m, en el periodo i.
+
+Con los promedios calculados, se empleó cada uno de los métodos para cada alcaldía.
+
+```{r, include=FALSE}
+db$i <- 1
+```
+
+```{r, message=FALSE}
+### Calculo de promedios por clase, por año y por alcaldia
+PP_alc <- as.data.frame(group_by(db,anio,mes,CLAVE_MUNICIPIO_UBICACION_INMUEBLE,CVE_CLASE_INMUEBLE) %>%
+                          summarise(Promedio=mean(VALOR_COMPARATIVO_INMUEBLE),
+                                    Observaciones=sum(i)))
+# Ejemplo de los promedios
+kable(PP_alc[1:10,])
+# Hacemos la multiplicación de la columna precio promedio con la de número de observaciones
+PP_alc$Producto <- PP_alc$Promedio*PP_alc$Observaciones
+#Calculamos la suma de observaciones por alcaldía y de la columna producto
+PP_alc <- as.data.frame(group_by(PP_alc,anio,mes,CLAVE_MUNICIPIO_UBICACION_INMUEBLE) %>%
+                          summarise(SumaProducto=sum(Producto),
+                                    Observaciones=sum(Observaciones)))
+# Ejemplo de los promedios
+kable(PP_alc[1:10,])
+#Calculamos los promedios finales al dividir la columna SumaProducto con la del total de observaciones
+PP_alc$Promedio <- PP_alc$SumaProducto/PP_alc$Observaciones
+# Ejemplo de los promedios
+kable(PP_alc[1:10,c(1,2,3,6)])
+```
+
+```{r }
+#Eliminamos las columnas que no nos sirven
+PP_alc <- PP_alc[,c(1:3,6)]
+
+```
+
+
+
+## Justificación de selección del modelo, técnicas de validación y datos de entrenamiento - prueba
+
+Se seleccionará en cada alcaldía el modelo con el mejor poder predictivo, es decir, el que más se acerque a los promedios reales, para ellos emplearemos lo siguiente:
+
+1. Los datos para cada alcaldía se partieron en 2, la primera partición denominada de entrenamiento constó de los datos mensuales de enero de 2018 a septiembre de 2023; mientras que la segunda partición fue la denominada de prueba o validación (constó de los datos de octubre a diciembre de 2023).
+
+2. Se aplicaron cada uno de los modelos a los datos de entrenamiento de cada alcaldía.
+
+3. Con los modelos resultantes, se estimaron los datos para los meses de octubre a diciembre de 2023.
+
+4. Se comparó la cercanía de los datos estimados con los reales. Así el modelo que cometió el menor error (accuracy) fue considerado el mejor y se seleccionó para realizar la proyección.
+
+El código y resultados obtenidos de la implementación de lo antes descrito se presenta a continuación.
+
+### Segmentación de la base
+
+```{r }
+### Segmentamos los datos de cada alcaldía y convertimos cada objeto en una serie de tiempo
+Contenedor <- list() #Lista contenedora de los objetos ts
+alcaldias <- unique(PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE)
+for (i in 1:11) { #Son 11 alcaldias
+  part <- PP_alc[PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==alcaldias[i],]
+  part <- ts(part$Promedio,frequency = 12,start = 2018)
+  Contenedor[[i]] <- part
+}
+```
+
+### Método de regresion
+
+```{r }
+Metodo_1 <- list()
+for (i in 1:11) {
+  entrenamiento <- Contenedor[[i]]
+  entrenamiento <- ts(entrenamiento[1:69],frequency = 12,start = 2018)
+  regresion <- tslm(entrenamiento ~ trend + season) #Aplicación del método
+  res <- forecast(regresion, h=27) #Proyección
+  Metodo_1[[i]] <- res
+}
+rm(res,entrenamiento,regresion)
+```
+
+### Método de holt winters
+
+```{r }
+Metodo_2 <- list()
+for (i in 1:11) {
+  entrenamiento <- Contenedor[[i]]
+  entrenamiento <- ts(entrenamiento[1:69],frequency = 12,start = 2018)
+  res <- hw(entrenamiento, h=27, seasonal = 'multiplicative') #Aplicación del método y proyección
+  Metodo_2[[i]] <- res
+}
+rm(res,entrenamiento)
+```
+
+## Comparativa de modelos
+
+### Azcapotzalco
+
+La comparativa de los modelos fue la siguiente
+
+```{r }
+### Datos reales
+reales <- ts(Contenedor[[1]][70:72],frequency = 12,start = c(2023,10))
+Modelo_1 <- ts(Metodo_1[[1]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 1
+Modelo_2 <- ts(Metodo_2[[1]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 2
+```
+
+Los resultados de Accuracy fueron los siguientes
+
+```{r }
+ac <- as.data.frame(accuracy(Modelo_1,reales))
+ac <- rbind.data.frame(ac,as.data.frame(accuracy(Modelo_2,reales)))
+ac$Modelo <- c("Modelo 1","Modelo 2")
+ac <- ac[,c(8,1:7)]
+kable(ac,row.names = FALSE)
+```
+
+Por lo tanto, el mejor modelo es el *`r ac$Modelo[ac$RMSE==min(ac$RMSE)]`*, ya que presentó el RMSE más pequeño de todos.
+
+Los resultados del modelo ajustado son los siguientes
+
+```{r}
+autoplot(Metodo_1[[1]]) +
+  ggtitle("Método de regresión") +
+  labs(x= "Año", y= "Precio") +
+  theme_test()
+```
+
+### Coyoacán
+
+La comparativa de los modelos fue la siguiente
+
+```{r }
+### Datos reales
+reales <- ts(Contenedor[[2]][70:72],frequency = 12,start = c(2023,10))
+Modelo_1 <- ts(Metodo_1[[2]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 1
+Modelo_2 <- ts(Metodo_2[[2]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 2
+```
+
+Los resultados de Accuracy fueron los siguientes
+
+```{r }
+ac <- as.data.frame(accuracy(Modelo_1,reales))
+ac <- rbind.data.frame(ac,as.data.frame(accuracy(Modelo_2,reales)))
+ac$Modelo <- c("Modelo 1","Modelo 2")
+ac <- ac[,c(8,1:7)]
+kable(ac,row.names = FALSE)
+```
+
+Por lo tanto, el mejor modelo es el *`r ac$Modelo[ac$RMSE==min(ac$RMSE)]`*, ya que presentó el RMSE más pequeño de todos.
+
+Los resultados del modelo ajustado son los siguientes
+
+```{r}
+autoplot(Metodo_2[[2]]) +
+  ggtitle("Método de holt winters") +
+  labs(x= "Año", y= "Precio") +
+  theme_test()
+```
+
+### Gustavo A. Madero
+
+La comparativa de los modelos fue la siguiente
+
+```{r }
+### Datos reales
+reales <- ts(Contenedor[[3]][70:72],frequency = 12,start = c(2023,10))
+Modelo_1 <- ts(Metodo_1[[3]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 1
+Modelo_2 <- ts(Metodo_2[[3]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 2
+```
+
+Los resultados de Accuracy fueron los siguientes
+
+```{r }
+ac <- as.data.frame(accuracy(Modelo_1,reales))
+ac <- rbind.data.frame(ac,as.data.frame(accuracy(Modelo_2,reales)))
+ac$Modelo <- c("Modelo 1","Modelo 2")
+ac <- ac[,c(8,1:7)]
+kable(ac,row.names = FALSE)
+```
+
+Por lo tanto, el mejor modelo es el *`r ac$Modelo[ac$RMSE==min(ac$RMSE)]`*, ya que presentó el RMSE más pequeño de todos.
+
+Los resultados del modelo ajustado son los siguientes
+
+```{r}
+autoplot(Metodo_2[[3]]) +
+  ggtitle("Método de holt winters") +
+  labs(x= "Año", y= "Precio") +
+  theme_test()
+```
+
+### Iztacalco
+
+La comparativa de los modelos fue la siguiente
+
+```{r }
+### Datos reales
+reales <- ts(Contenedor[[4]][70:72],frequency = 12,start = c(2023,10))
+Modelo_1 <- ts(Metodo_1[[4]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 1
+Modelo_2 <- ts(Metodo_2[[4]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 2
+```
+
+Los resultados de Accuracy fueron los siguientes
+
+```{r }
+ac <- as.data.frame(accuracy(Modelo_1,reales))
+ac <- rbind.data.frame(ac,as.data.frame(accuracy(Modelo_2,reales)))
+ac$Modelo <- c("Modelo 1","Modelo 2")
+ac <- ac[,c(8,1:7)]
+kable(ac,row.names = FALSE)
+```
+
+Por lo tanto, el mejor modelo es el *`r ac$Modelo[ac$RMSE==min(ac$RMSE)]`*, ya que presentó el RMSE más pequeño de todos.
+
+Los resultados del modelo ajustado son los siguientes
+
+```{r}
+autoplot(Metodo_1[[4]]) +
+  ggtitle("Método de regresión") +
+  labs(x= "Año", y= "Precio") +
+  theme_test()
+```
+
+### Iztapalapa
+
+La comparativa de los modelos fue la siguiente
+
+```{r }
+### Datos reales
+reales <- ts(Contenedor[[5]][70:72],frequency = 12,start = c(2023,10))
+Modelo_1 <- ts(Metodo_1[[5]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del Modelo 1
+Modelo_2 <- ts(Metodo_2[[5]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del Modelo 2
+```
+
+Los resultados de Accuracy fueron los siguientes
+
+```{r }
+ac <- as.data.frame(accuracy(Modelo_1,reales))
+ac <- rbind.data.frame(ac,as.data.frame(accuracy(Modelo_2,reales)))
+ac$Modelo <- c("Modelo 1","Modelo 2")
+ac <- ac[,c(8,1:7)]
+kable(ac,row.names = FALSE)
+```
+
+Por lo tanto, el mejor modelo es el *`r ac$Modelo[ac$RMSE==min(ac$RMSE)]`*, ya que presentó el RMSE más pequeño de todos.
+
+Los resultados del modelo ajustado son los siguientes
+
+```{r}
+autoplot(Metodo_1[[5]]) +
+  ggtitle("Método de regresión") +
+  labs(x= "Año", y= "Precio") +
+  theme_test()
+```
+
+### Álvaro Obregón
+
+La comparativa de los modelos fue la siguiente
+
+```{r }
+### Datos reales
+reales <- ts(Contenedor[[6]][70:72],frequency = 12,start = c(2023,10))
+Modelo_1 <- ts(Metodo_1[[6]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 1
+Modelo_2 <- ts(Metodo_2[[6]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 2
+```
+
+Los resultados de Accuracy fueron los siguientes
+
+```{r }
+ac <- as.data.frame(accuracy(Modelo_1,reales))
+ac <- rbind.data.frame(ac,as.data.frame(accuracy(Modelo_2,reales)))
+ac$Modelo <- c("Modelo 1","Modelo 2")
+ac <- ac[,c(8,1:7)]
+kable(ac,row.names = FALSE)
+```
+
+Por lo tanto, el mejor modelo es el *`r ac$Modelo[ac$RMSE==min(ac$RMSE)]`*, ya que presentó el RMSE más pequeño de todos.
+
+Los resultados del modelo ajustado son los siguientes
+
+```{r}
+autoplot(Metodo_2[[6]]) +
+  ggtitle("Método de holt winters") +
+  labs(x= "Año", y= "Precio") +
+  theme_test()
+```
+
+### Tlalpan
+
+La comparativa de los modelos fue la siguiente
+
+```{r }
+### Datos reales
+reales <- ts(Contenedor[[7]][70:72],frequency = 12,start = c(2023,10))
+Modelo_1 <- ts(Metodo_1[[7]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 1
+Modelo_2 <- ts(Metodo_2[[7]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 2
+```
+
+Los resultados de Accuracy fueron los siguientes
+
+```{r }
+ac <- as.data.frame(accuracy(Modelo_1,reales))
+ac <- rbind.data.frame(ac,as.data.frame(accuracy(Modelo_2,reales)))
+ac$Modelo <- c("Modelo 1","Modelo 2")
+ac <- ac[,c(8,1:7)]
+kable(ac,row.names = FALSE)
+```
+
+Por lo tanto, el mejor modelo es el *`r ac$Modelo[ac$RMSE==min(ac$RMSE)]`*, ya que presentó el RMSE más pequeño de todos.
+
+Los resultados del modelo ajustado son los siguientes
+
+```{r}
+autoplot(Metodo_1[[7]]) +
+  ggtitle("Método de regresión") +
+  labs(x= "Año", y= "Precio") +
+  theme_test()
+```
+
+### Benito Juárez
+
+La comparativa de los modelos fue la siguiente
+
+```{r }
+### Datos reales
+reales <- ts(Contenedor[[8]][70:72],frequency = 12,start = c(2023,10))
+Modelo_1 <- ts(Metodo_1[[8]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 1
+Modelo_2 <- ts(Metodo_2[[8]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 2
+```
+
+Los resultados de Accuracy fueron los siguientes
+
+```{r }
+ac <- as.data.frame(accuracy(Modelo_1,reales))
+ac <- rbind.data.frame(ac,as.data.frame(accuracy(Modelo_2,reales)))
+ac$Modelo <- c("Modelo 1","Modelo 2")
+ac <- ac[,c(8,1:7)]
+kable(ac,row.names = FALSE)
+```
+
+Por lo tanto, el mejor modelo es el *`r ac$Modelo[ac$RMSE==min(ac$RMSE)]`*, ya que presentó el RMSE más pequeño de todos.
+
+Los resultados del modelo ajustado son los siguientes
+
+```{r}
+autoplot(Metodo_1[[8]]) +
+  ggtitle("Método de regresión") +
+  labs(x= "Año", y= "Precio") +
+  theme_test()
+```
+
+### Cuauhtémoc
+
+La comparativa de los modelos fue la siguiente
+
+```{r }
+### Datos reales
+reales <- ts(Contenedor[[9]][70:72],frequency = 12,start = c(2023,10))
+Modelo_1 <- ts(Metodo_1[[9]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 1
+Modelo_2 <- ts(Metodo_2[[9]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 2
+```
+
+Los resultados de Accuracy fueron los siguientes
+
+```{r }
+ac <- as.data.frame(accuracy(Modelo_1,reales))
+ac <- rbind.data.frame(ac,as.data.frame(accuracy(Modelo_2,reales)))
+ac$Modelo <- c("Modelo 1","Modelo 2")
+ac <- ac[,c(8,1:7)]
+kable(ac,row.names = FALSE)
+```
+
+Por lo tanto, el mejor modelo es el *`r ac$Modelo[ac$RMSE==min(ac$RMSE)]`*, ya que presentó el RMSE más pequeño de todos.
+
+Los resultados del modelo ajustado son los siguientes
+
+```{r}
+autoplot(Metodo_1[[9]]) +
+  ggtitle("Método de regresión") +
+  labs(x= "Año", y= "Precio") +
+  theme_test()
+```
+
+### Miguel Hidalgo
+
+La comparativa de los modelos fue la siguiente
+
+```{r }
+### Datos reales
+reales <- ts(Contenedor[[10]][70:72],frequency = 12,start = c(2023,10))
+Modelo_1 <- ts(Metodo_1[[10]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 1
+Modelo_2 <- ts(Metodo_2[[10]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 2
+```
+
+Los resultados de Accuracy fueron los siguientes
+
+```{r }
+ac <- as.data.frame(accuracy(Modelo_1,reales))
+ac <- rbind.data.frame(ac,as.data.frame(accuracy(Modelo_2,reales)))
+ac$Modelo <- c("Modelo 1","Modelo 2")
+ac <- ac[,c(8,1:7)]
+kable(ac,row.names = FALSE)
+```
+
+Por lo tanto, el mejor modelo es el *`r ac$Modelo[ac$RMSE==min(ac$RMSE)]`*, ya que presentó el RMSE más pequeño de todos.
+
+Los resultados del modelo ajustado son los siguientes
+
+```{r}
+autoplot(Metodo_2[[10]]) +
+  ggtitle("Método de holt winters") +
+  labs(x= "Año", y= "Precio") +
+  theme_test()
+```
+
+### Venustiano Carranza
+
+La comparativa de los modelos fue la siguiente
+
+```{r }
+### Datos reales
+reales <- ts(Contenedor[[11]][70:72],frequency = 12,start = c(2023,10))
+Modelo_1 <- ts(Metodo_1[[11]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 1
+Modelo_2 <- ts(Metodo_2[[11]]$mean[1:3],frequency = 12,start = c(2023,10))#Valores ajustados del modelo 2
+```
+
+Los resultados de Accuracy fueron los siguientes
+
+```{r }
+ac <- as.data.frame(accuracy(Modelo_1,reales))
+ac <- rbind.data.frame(ac,as.data.frame(accuracy(Modelo_2,reales)))
+ac$Modelo <- c("Modelo 1","Modelo 2")
+ac <- ac[,c(8,1:7)]
+kable(ac,row.names = FALSE)
+```
+
+Por lo tanto, el mejor modelo es el *`r ac$Modelo[ac$RMSE==min(ac$RMSE)]`*, ya que presentó el RMSE más pequeño de todos.
+
+Los resultados del modelo ajustado son los siguientes
+
+```{r}
+autoplot(Metodo_1[[11]]) +
+  ggtitle("Método de regresión") +
+  labs(x= "Año", y= "Precio") +
+  theme_test()
+```
+
+## Comparativa de crecimiento
+
+```{r,echo=FALSE}
+#Vector con fechas
+Fecha <- seq.Date(from = as.Date("2018/01/01"), to =  as.Date("2025/12/31"), by = "month")
+#Area de sombreado
+shade <- data.frame(x1 = c(as.Date("2018-01-01"), as.Date("2024-01-01")),
+                    x2 = c(as.Date("2023-12-01"), as.Date("2025-12-01")),
+                    min = c(-Inf, -Inf), max = c(Inf, Inf))
+```
+
+
+### Azcapotzalco
+
+```{r,echo=FALSE}
+#Dataframe de información
+Comparativa <- data.frame(Fecha,Valores=c(PP_alc$Promedio[PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==2],as.vector(Metodo_1[[1]]$mean[4:27])))
+#Creamos una variable de pesos en millones
+Comparativa$ValoresM <- round(Comparativa$Valores/1000000,2)
+### Gráfoca de Estimaciones
+ggplot()+
+  geom_point(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_line(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_rect(data = shade, aes(xmin = x1, xmax = x2, ymin = min, ymax = max),
+            fill = c("deepskyblue", "coral"), alpha = 0.3) +
+  ggtitle("Azcapotzalco") +
+  labs(x="Año",y="Precio (mdp)") +
+  theme_test()
+#Calculamos la variación punta a punta
+Variacion <- round(((Comparativa$Valores[96]-Comparativa$Valores[72])/Comparativa$Valores[72])*100,2)
+```
+
+En está alcaldía, el crecimiento estimado en los próximos 24 meses es de `r Variacion`. Esto al comparar el precio promedio al cierre de 2023 contra el precio promedio estimado al cierre de 2025.
+
+### Coyoacán
+
+```{r,echo=FALSE}
+#Dataframe de información
+Comparativa <- data.frame(Fecha,Valores=c(PP_alc$Promedio[PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==3],as.vector(Metodo_2[[2]]$mean[4:27])))
+#Creamos una variable de pesos en millones
+Comparativa$ValoresM <- round(Comparativa$Valores/1000000,2)
+### Gráfoca de Estimaciones
+ggplot()+
+  geom_point(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_line(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_rect(data = shade, aes(xmin = x1, xmax = x2, ymin = min, ymax = max),
+            fill = c("deepskyblue", "coral"), alpha = 0.3) +
+  ggtitle("Coyoacán") +
+  labs(x="Año",y="Precio (mdp)") +
+  theme_test()
+#Calculamos la variación punta a punta
+Variacion <- round(((Comparativa$Valores[96]-Comparativa$Valores[72])/Comparativa$Valores[72])*100,2)
+```
+
+En está alcaldía, el crecimiento estimado en los próximos 24 meses es de `r Variacion`. Esto al comparar el precio promedio al cierre de 2023 contra el precio promedio estimado al cierre de 2025.
+
+### Gustavo A. Madero
+
+```{r,echo=FALSE}
+#Dataframe de información
+Comparativa <- data.frame(Fecha,Valores=c(PP_alc$Promedio[PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==5],as.vector(Metodo_2[[3]]$mean[4:27])))
+#Creamos una variable de pesos en millones
+Comparativa$ValoresM <- round(Comparativa$Valores/1000000,2)
+### Gráfoca de Estimaciones
+ggplot()+
+  geom_point(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_line(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_rect(data = shade, aes(xmin = x1, xmax = x2, ymin = min, ymax = max),
+            fill = c("deepskyblue", "coral"), alpha = 0.3) +
+  ggtitle("Gustavo A. Madero") +
+  labs(x="Año",y="Precio (mdp)") +
+  theme_test()
+#Calculamos la variación punta a punta
+Variacion <- round(((Comparativa$Valores[96]-Comparativa$Valores[72])/Comparativa$Valores[72])*100,2)
+```
+
+En está alcaldía, el crecimiento estimado en los próximos 24 meses es de `r Variacion`. Esto al comparar el precio promedio al cierre de 2023 contra el precio promedio estimado al cierre de 2025.
+
+### Iztacalco
+
+```{r,echo=FALSE}
+#Dataframe de información
+Comparativa <- data.frame(Fecha,Valores=c(PP_alc$Promedio[PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==6],as.vector(Metodo_1[[4]]$mean[4:27])))
+#Creamos una variable de pesos en millones
+Comparativa$ValoresM <- round(Comparativa$Valores/1000000,2)
+### Gráfoca de Estimaciones
+ggplot()+
+  geom_point(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_line(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_rect(data = shade, aes(xmin = x1, xmax = x2, ymin = min, ymax = max),
+            fill = c("deepskyblue", "coral"), alpha = 0.3) +
+  ggtitle("Iztacalco") +
+  labs(x="Año",y="Precio (mdp)") +
+  theme_test()
+#Calculamos la variación punta a punta
+Variacion <- round(((Comparativa$Valores[96]-Comparativa$Valores[72])/Comparativa$Valores[72])*100,2)
+```
+
+En está alcaldía, el crecimiento estimado en los próximos 24 meses es de `r Variacion`. Esto al comparar el precio promedio al cierre de 2023 contra el precio promedio estimado al cierre de 2025.
+
+### Iztapalapa
+
+```{r,echo=FALSE}
+#Dataframe de información
+Comparativa <- data.frame(Fecha,Valores=c(PP_alc$Promedio[PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==7],as.vector(Metodo_1[[5]]$mean[4:27])))
+#Creamos una variable de pesos en millones
+Comparativa$ValoresM <- round(Comparativa$Valores/1000000,2)
+### Gráfoca de Estimaciones
+ggplot()+
+  geom_point(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_line(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_rect(data = shade, aes(xmin = x1, xmax = x2, ymin = min, ymax = max),
+            fill = c("deepskyblue", "coral"), alpha = 0.3) +
+  ggtitle("Iztapalapa") +
+  labs(x="Año",y="Precio (mdp)") +
+  theme_test()
+#Calculamos la variación punta a punta
+Variacion <- round(((Comparativa$Valores[96]-Comparativa$Valores[72])/Comparativa$Valores[72])*100,2)
+```
+
+En está alcaldía, el crecimiento estimado en los próximos 24 meses es de `r Variacion`. Esto al comparar el precio promedio al cierre de 2023 contra el precio promedio estimado al cierre de 2025.
+
+### Álvaro Obregón
+
+```{r,echo=FALSE}
+#Dataframe de información
+Comparativa <- data.frame(Fecha,Valores=c(PP_alc$Promedio[PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==10],as.vector(Metodo_2[[6]]$mean[4:27])))
+#Creamos una variable de pesos en millones
+Comparativa$ValoresM <- round(Comparativa$Valores/1000000,2)
+### Gráfoca de Estimaciones
+ggplot()+
+  geom_point(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_line(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_rect(data = shade, aes(xmin = x1, xmax = x2, ymin = min, ymax = max),
+            fill = c("deepskyblue", "coral"), alpha = 0.3) +
+  ggtitle("Álvaro Obregón") +
+  labs(x="Año",y="Precio (mdp)") +
+  theme_test()
+#Calculamos la variación punta a punta
+Variacion <- round(((Comparativa$Valores[96]-Comparativa$Valores[72])/Comparativa$Valores[72])*100,2)
+```
+
+En está alcaldía, el crecimiento estimado en los próximos 24 meses es de `r Variacion`. Esto al comparar el precio promedio al cierre de 2023 contra el precio promedio estimado al cierre de 2025.
+
+### Tlalpan
+
+```{r,echo=FALSE}
+#Dataframe de información
+Comparativa <- data.frame(Fecha,Valores=c(PP_alc$Promedio[PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==12],as.vector(Metodo_1[[7]]$mean[4:27])))
+#Creamos una variable de pesos en millones
+Comparativa$ValoresM <- round(Comparativa$Valores/1000000,2)
+### Gráfoca de Estimaciones
+ggplot()+
+  geom_point(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_line(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_rect(data = shade, aes(xmin = x1, xmax = x2, ymin = min, ymax = max),
+            fill = c("deepskyblue", "coral"), alpha = 0.3) +
+  ggtitle("Tlalpan") +
+  labs(x="Año",y="Precio (mdp)") +
+  theme_test()
+#Calculamos la variación punta a punta
+Variacion <- round(((Comparativa$Valores[96]-Comparativa$Valores[72])/Comparativa$Valores[72])*100,2)
+```
+
+En está alcaldía, el crecimiento estimado en los próximos 24 meses es de `r Variacion`. Esto al comparar el precio promedio al cierre de 2023 contra el precio promedio estimado al cierre de 2025.
+
+### Benito Juárez
+
+```{r,echo=FALSE}
+#Dataframe de información
+Comparativa <- data.frame(Fecha,Valores=c(PP_alc$Promedio[PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==14],as.vector(Metodo_1[[8]]$mean[4:27])))
+#Creamos una variable de pesos en millones
+Comparativa$ValoresM <- round(Comparativa$Valores/1000000,2)
+### Gráfoca de Estimaciones
+ggplot()+
+  geom_point(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_line(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_rect(data = shade, aes(xmin = x1, xmax = x2, ymin = min, ymax = max),
+            fill = c("deepskyblue", "coral"), alpha = 0.3) +
+  ggtitle("Benito Juárez") +
+  labs(x="Año",y="Precio (mdp)") +
+  theme_test()
+#Calculamos la variación punta a punta
+Variacion <- round(((Comparativa$Valores[96]-Comparativa$Valores[72])/Comparativa$Valores[72])*100,2)
+```
+
+En está alcaldía, el crecimiento estimado en los próximos 24 meses es de `r Variacion`. Esto al comparar el precio promedio al cierre de 2023 contra el precio promedio estimado al cierre de 2025.
+
+### Cuauhtémoc
+
+```{r,echo=FALSE}
+#Dataframe de información
+Comparativa <- data.frame(Fecha,Valores=c(PP_alc$Promedio[PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==15],as.vector(Metodo_1[[9]]$mean[4:27])))
+#Creamos una variable de pesos en millones
+Comparativa$ValoresM <- round(Comparativa$Valores/1000000,2)
+### Gráfoca de Estimaciones
+ggplot()+
+  geom_point(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_line(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_rect(data = shade, aes(xmin = x1, xmax = x2, ymin = min, ymax = max),
+            fill = c("deepskyblue", "coral"), alpha = 0.3) +
+  ggtitle("Cuauhtémoc") +
+  labs(x="Año",y="Precio (mdp)") +
+  theme_test()
+#Calculamos la variación punta a punta
+Variacion <- round(((Comparativa$Valores[96]-Comparativa$Valores[72])/Comparativa$Valores[72])*100,2)
+```
+
+En está alcaldía, el crecimiento estimado en los próximos 24 meses es de `r Variacion`. Esto al comparar el precio promedio al cierre de 2023 contra el precio promedio estimado al cierre de 2025.
+
+### Miguel Hidalgo
+
+```{r,echo=FALSE}
+#Dataframe de información
+Comparativa <- data.frame(Fecha,Valores=c(PP_alc$Promedio[PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==16],as.vector(Metodo_2[[10]]$mean[4:27])))
+#Creamos una variable de pesos en millones
+Comparativa$ValoresM <- round(Comparativa$Valores/1000000,2)
+### Gráfoca de Estimaciones
+ggplot()+
+  geom_point(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_line(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_rect(data = shade, aes(xmin = x1, xmax = x2, ymin = min, ymax = max),
+            fill = c("deepskyblue", "coral"), alpha = 0.3) +
+  ggtitle("Miguel Hidalgo") +
+  labs(x="Año",y="Precio (mdp)") +
+  theme_test()
+#Calculamos la variación punta a punta
+Variacion <- round(((Comparativa$Valores[96]-Comparativa$Valores[72])/Comparativa$Valores[72])*100,2)
+```
+
+En está alcaldía, el crecimiento estimado en los próximos 24 meses es de `r Variacion`. Esto al comparar el precio promedio al cierre de 2023 contra el precio promedio estimado al cierre de 2025.
+
+### Venustiano Carranza
+
+```{r,echo=FALSE}
+#Dataframe de información
+Comparativa <- data.frame(Fecha,Valores=c(PP_alc$Promedio[PP_alc$CLAVE_MUNICIPIO_UBICACION_INMUEBLE==17],as.vector(Metodo_1[[11]]$mean[4:27])))
+#Creamos una variable de pesos en millones
+Comparativa$ValoresM <- round(Comparativa$Valores/1000000,2)
+### Gráfoca de Estimaciones
+ggplot()+
+  geom_point(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_line(data = Comparativa, aes(x=Fecha,y=ValoresM)) +
+  geom_rect(data = shade, aes(xmin = x1, xmax = x2, ymin = min, ymax = max),
+            fill = c("deepskyblue", "coral"), alpha = 0.3) +
+  ggtitle("Venustiano Carranza") +
+  labs(x="Año",y="Precio (mdp)") +
+  theme_test()
+#Calculamos la variación punta a punta
+Variacion <- round(((Comparativa$Valores[96]-Comparativa$Valores[72])/Comparativa$Valores[72])*100,2)
+```
+
+En está alcaldía, el crecimiento estimado en los próximos 24 meses es de `r Variacion`. Esto al comparar el precio promedio al cierre de 2023 contra el precio promedio estimado al cierre de 2025.
